@@ -31,3 +31,8 @@ dist-ssr
 .branches
 .temp
 .supabase
+
+# Archives
+*.zip
+*.tar
+*.gz
