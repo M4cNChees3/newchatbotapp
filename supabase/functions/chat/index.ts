@@ -90,7 +90,47 @@ Deno.serve(async (req: Request) => {
   try {
     const { message, athlete_id } = await req.json();
 
-    const queryType = classifyQuery(message);
+    // Authentication: reject if no valid bearer token
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized: missing Authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const token = authHeader.replace(/^Bearer /i, "");
+    try {
+      const { data: { user } } = await supabase.auth.getUser(token);
+      if (!user) {
+        throw new Error("Invalid token");
+      }
+      // Optional: ensure the authenticated user owns the requested athlete or is admin
+      if (athlete_id && user.id !== athlete_id) {
+        // Optionally allow admin role check
+        const { data: roleData, error: roleErr } = await supabase
+          .from("athletes")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (!roleErr && roleData?.role !== "admin") {
+          return new Response(JSON.stringify({ error: "Forbidden: cannot access other athletes" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    } catch (authErr) {
+      return new Response(JSON.stringify({ error: "Unauthorized: invalid token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const queryType = classifyQuery(message);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
