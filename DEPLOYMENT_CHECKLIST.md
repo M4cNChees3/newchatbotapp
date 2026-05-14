@@ -27,7 +27,7 @@ Gunakan checklist ini untuk deployment cepat ke Netlify + Supabase.
 npm install -g supabase
 supabase login
 cd chatbot
-supabase link --project-ref <YOUR_PROJECT_REF>
+supabase link --project-ref tyrdicjqdqtgcorobpld
 ```
 
 ### 3. Push Database
@@ -48,7 +48,7 @@ supabase secrets set chatbot=<YOUR_GROQ_API_KEY>
 ```
 
 ### 6. Get Credentials
-- [ ] Copy Project URL: `https://<project-ref>.supabase.co`
+- [ ] Copy Project URL: `https://tyrdicjqdqtgcorobpld.supabase.co`
 - [ ] Copy anon key dari Settings → API
 - [ ] Simpan untuk step berikutnya!
 
@@ -79,7 +79,7 @@ git push -u origin main
 #### Step 3: Environment Variables
 Add di Netlify dashboard (Site settings → Environment variables):
 ```
-VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_URL=https://tyrdicjqdqtgcorobpld.supabase.co
 VITE_SUPABASE_ANON_KEY=<your-anon-key>
 ```
 
@@ -101,7 +101,7 @@ netlify login
 
 # Deploy
 netlify init
-netlify env:set VITE_SUPABASE_URL "https://<project-ref>.supabase.co"
+netlify env:set VITE_SUPABASE_URL "https://tyrdicjqdqtgcorobpld.supabase.co"
 netlify env:set VITE_SUPABASE_ANON_KEY "<your-anon-key>"
 netlify deploy --prod
 ```

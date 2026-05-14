@@ -43,7 +43,7 @@ supabase login
 
 # Link project ke local directory
 cd chatbot
-supabase link --project-ref <YOUR_PROJECT_REF>
+supabase link --project-ref tyrdicjqdqtgcorobpld
 ```
 
 **Note**: Project ref bisa ditemukan di URL dashboard: `https://supabase.com/dashboard/project/<PROJECT_REF>`
@@ -149,7 +149,7 @@ Di Netlify dashboard:
 2. Add variables:
 
 ```
-VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_URL=https://tyrdicjqdqtgcorobpld.supabase.co
 VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 ```
 
@@ -182,7 +182,7 @@ netlify login
 netlify init
 
 # Set environment variables
-netlify env:set VITE_SUPABASE_URL "https://<project-ref>.supabase.co"
+netlify env:set VITE_SUPABASE_URL "https://tyrdicjqdqtgcorobpld.supabase.co"
 netlify env:set VITE_SUPABASE_ANON_KEY "<your-anon-key>"
 
 # Deploy to production
