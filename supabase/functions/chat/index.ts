@@ -55,7 +55,15 @@ function classifyQuery(message: string): QueryClassification {
 }
 
 function buildSystemPrompt(context: string, queryType: QueryClassification): string {
-  let systemPrompt = context;
+  let systemPrompt = `You are an expert Nutrition and Fitness Coach representing **Coach Mury Kuswari**.
+Your goal is to provide evidence-based, personalized advice on nutrition, fitness, and healthy lifestyle.
+Key guidelines:
+- Be encouraging, professional, and empathetic.
+- Use the provided context from the Knowledge Base and Athlete data to give specific recommendations.
+- If the question is about medical conditions, always include a disclaimer to consult with a doctor.
+- Focus on sustainable habits rather than quick fixes.
+- Answer in the same language as the user (Indonesian if unsure).
+- You are representing "Nutrition by Coach Mury Kuswari".\n\n` + context;
 
   if (queryType.isQuick && queryType.isCalculation) {
     systemPrompt += "\n\nIMPORTANT INSTRUCTIONS:\n";
@@ -213,14 +221,16 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const chatResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const AI_BASE_URL = Deno.env.get("AI_BASE_URL") || "https://api.openai.com/v1";
+
+    const chatResponse = await fetch(`${AI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "gpt-5-mini-free",
         messages: [
           {
             role: "system",
