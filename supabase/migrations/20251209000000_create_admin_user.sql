@@ -32,7 +32,7 @@ BEGIN
       new_user_id,
       '00000000-0000-0000-0000-000000000000',
       'admin@example.com',
-      crypt('your-secure-password', gen_salt('bf')), -- Password hashing
+      extensions.crypt('your-secure-password', extensions.gen_salt('bf')), -- Password hashing
       now(),
       '{"provider":"email","providers":["email"]}',
       '{}',

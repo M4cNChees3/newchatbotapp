@@ -1,3 +1,4 @@
+// Supabase client initialization (triggered update)
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
