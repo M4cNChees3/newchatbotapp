@@ -246,7 +246,19 @@ Deno.serve(async (req: Request) => {
       }),
     });
 
+    if (!chatResponse.ok) {
+      const errorDetail = await chatResponse.text();
+      console.error(`AI Provider Error (${chatResponse.status}):`, errorDetail);
+      throw new Error(`AI Provider returned error ${chatResponse.status}`);
+    }
+
     const chatData = await chatResponse.json();
+    
+    if (!chatData.choices || chatData.choices.length === 0) {
+      console.error("AI Provider returned empty choices:", chatData);
+      throw new Error("AI Provider returned an empty response");
+    }
+
     const response = chatData.choices[0].message.content;
 
     return new Response(
@@ -259,9 +271,12 @@ Deno.serve(async (req: Request) => {
       }
     );
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Chat Function Error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ 
+        error: error.message || "Internal server error",
+        details: "Please check AI provider settings or API key."
+      }),
       {
         status: 500,
         headers: {
