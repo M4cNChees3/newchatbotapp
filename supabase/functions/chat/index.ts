@@ -230,7 +230,7 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-20b",
+        model: "MiniMax-M2.7-highspeed",
         messages: [
           {
             role: "system",
