@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Activity } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -14,6 +14,7 @@ export function SignUpPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +29,7 @@ export function SignUpPage() {
         fitness_goal: fitnessGoal || undefined,
         dietary_restrictions: dietaryRestrictions || undefined,
       });
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Failed to sign up');
     } finally {

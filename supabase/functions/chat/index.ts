@@ -55,7 +55,15 @@ function classifyQuery(message: string): QueryClassification {
 }
 
 function buildSystemPrompt(context: string, queryType: QueryClassification): string {
-  let systemPrompt = context;
+  let systemPrompt = `You are an expert Nutrition and Fitness Coach representing **Coach Mury Kuswari**.
+Your goal is to provide evidence-based, personalized advice on nutrition, fitness, and healthy lifestyle.
+Key guidelines:
+- Be encouraging, professional, and empathetic.
+- Use the provided context from the Knowledge Base and Athlete data to give specific recommendations.
+- If the question is about medical conditions, always include a disclaimer to consult with a doctor.
+- Focus on sustainable habits rather than quick fixes.
+- Answer in the same language as the user (Indonesian if unsure).
+- You are representing "Nutrition by Coach Mury Kuswari".\n\n` + context;
 
   if (queryType.isQuick && queryType.isCalculation) {
     systemPrompt += "\n\nIMPORTANT INSTRUCTIONS:\n";
@@ -90,8 +98,44 @@ Deno.serve(async (req: Request) => {
   try {
     const { message, athlete_id } = await req.json();
 
-    const queryType = classifyQuery(message);
+    // Authentication: reject if no valid bearer token
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized: missing Authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const token = authHeader.replace(/^Bearer /i, "");
+    try {
+      const { data: { user } } = await supabase.auth.getUser(token);
+      if (!user) {
+        throw new Error("Invalid token");
+      }
+      // Optional: ensure the authenticated user owns the requested athlete or is admin
+      if (athlete_id && user.id !== athlete_id) {
+        // Optionally allow admin role check
+        const { data: roleData, error: roleErr } = await supabase
+          .from("athletes")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (!roleErr && roleData?.role !== "admin") {
+          return new Response(JSON.stringify({ error: "Forbidden: cannot access other athletes" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      }
+    } catch (authErr) {
+      return new Response(JSON.stringify({ error: "Unauthorized: invalid token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
+    const queryType = classifyQuery(message);
+    
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
@@ -177,14 +221,16 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    const chatResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const AI_BASE_URL = Deno.env.get("AI_BASE_URL") || "https://api.openai.com/v1";
+
+    const chatResponse = await fetch(`${AI_BASE_URL}/chat/completions`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "MiniMax-M2.7-highspeed",
         messages: [
           {
             role: "system",
@@ -200,7 +246,19 @@ Deno.serve(async (req: Request) => {
       }),
     });
 
+    if (!chatResponse.ok) {
+      const errorDetail = await chatResponse.text();
+      console.error(`AI Provider Error (${chatResponse.status}):`, errorDetail);
+      throw new Error(`AI Provider returned error ${chatResponse.status}`);
+    }
+
     const chatData = await chatResponse.json();
+    
+    if (!chatData.choices || chatData.choices.length === 0) {
+      console.error("AI Provider returned empty choices:", chatData);
+      throw new Error("AI Provider returned an empty response");
+    }
+
     const response = chatData.choices[0].message.content;
 
     return new Response(
@@ -213,9 +271,12 @@ Deno.serve(async (req: Request) => {
       }
     );
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Chat Function Error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ 
+        error: error.message || "Internal server error",
+        details: "Please check AI provider settings or API key."
+      }),
       {
         status: 500,
         headers: {

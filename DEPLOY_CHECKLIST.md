@@ -25,7 +25,7 @@ npm install -g supabase
 
 # Login & link project
 supabase login
-supabase link --project-ref <YOUR_PROJECT_REF>
+supabase link --project-ref tyrdicjqdqtgcorobpld
 
 # Push database migrations
 supabase db push
@@ -72,7 +72,7 @@ npm run build
 
 **Environment Variables (Netlify Settings):**
 ```
-VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_URL=https://tyrdicjqdqtgcorobpld.supabase.co
 VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 ```
 

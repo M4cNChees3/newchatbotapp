@@ -71,6 +71,7 @@
 
 -- Enable pgvector extension for embeddings
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Create athletes table
 CREATE TABLE IF NOT EXISTS athletes (

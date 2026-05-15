@@ -73,26 +73,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, userData: SignUpData) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          name: userData.name,
+          age: userData.age,
+          sport_type: userData.sport_type,
+          fitness_goal: userData.fitness_goal,
+          dietary_restrictions: userData.dietary_restrictions,
+        }
+      }
     });
 
     if (error) throw error;
-
-    if (data.user) {
-      const { error: profileError } = await supabase.from('athletes').insert({
-        id: data.user.id,
-        email: data.user.email!,
-        name: userData.name,
-        age: userData.age,
-        sport_type: userData.sport_type,
-        fitness_goal: userData.fitness_goal,
-        dietary_restrictions: userData.dietary_restrictions,
-      });
-
-      if (profileError) throw profileError;
-    }
   };
 
   const signIn = async (email: string, password: string) => {
