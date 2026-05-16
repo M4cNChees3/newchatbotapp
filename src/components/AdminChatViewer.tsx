@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Trash2, User, X } from 'lucide-react';
-import { getAllUsers, getUserChats, deleteChatMessage } from '../lib/adminApi';
+import { getUsersWithChats, getUserChats, deleteChatMessage } from '../lib/adminApi';
 import { Database } from '../lib/database.types';
 import { ChatMessage } from './ChatMessage';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -57,7 +57,8 @@ export function AdminChatViewer({ selectedUser: propSelectedUser, onClearSelecti
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const data = await getAllUsers();
+      // FIXED: Now it will only show users who actually have a chat history
+      const data = await getUsersWithChats();
       setUsers(data || []);
     } catch (error) {
       console.error('Error loading users:', error);

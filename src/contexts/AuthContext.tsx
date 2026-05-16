@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { Database } from '../lib/database.types';
@@ -31,11 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ==========================================
-  // EXTRACT ROLE DIRECTLY FROM PASSED SESSION
-  // ==========================================
-  // No longer async, no longer calls getSession(), completely immune to race conditions
-  const extractAndSetRole = (session: Session | null) => {
+  // Extract role directly from session payload
+  const extractAndSetRole = useCallback((session: Session | null) => {
     const role = session?.user?.user_metadata?.role;
     console.log('Processing session role:', role);
 
@@ -44,24 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       setUserRole(null);
     }
-  };
+  }, []);
 
-  // Optional: If you want to use the database table instead of metadata, swap with this:
-  /*
-  const fetchRoleFromDatabase = async (userId: string) => {
-    const { data } = await supabase.from('athletes').select('role').eq('id', userId).single();
-    if (data?.role) setUserRole(data.role as UserRole);
-  };
-  */
-
-  const refreshUserRole = async () => {
+  const refreshUserRole = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     extractAndSetRole(session);
-  };
+  }, [extractAndSetRole]);
 
-  // =========================
-  // INITIAL AUTH & LISTENER
-  // =========================
+  // Stable auth initializer and state observer
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -81,9 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initializeAuth();
 
-    // =========================
-    // AUTH STATE LISTENER
-    // =========================
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         try {
@@ -91,9 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           const currentUser = session?.user ?? null;
           setUser(currentUser);
-
-          // CRITICAL FIX: Extract the role directly from the event payload.
-          // Do not await an external getSession call here.
           extractAndSetRole(session);
           
         } catch (error) {
@@ -105,12 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [extractAndSetRole]);
 
-  // =========================
-  // SIGN UP
-  // =========================
-  const signUp = async (email: string, password: string, userData: SignUpData) => {
+  // Memoized Sign Up
+  const signUp = useCallback(async (email: string, password: string, userData: SignUpData) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -121,47 +100,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           sport_type: userData.sport_type,
           fitness_goal: userData.fitness_goal,
           dietary_restrictions: userData.dietary_restrictions,
-          role: 'user', // Default role assigned to metadata
+          role: 'user',
         },
       },
     });
-
     if (error) throw error;
-  };
+  }, []);
 
-  // =========================
-  // SIGN IN
-  // =========================
-  const signIn = async (email: string, password: string) => {
+  // Memoized Sign In
+  const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-  };
+  }, []);
 
-  // =========================
-  // SIGN OUT
-  // =========================
-  const signOut = async () => {
+  // Memoized Sign Out
+  const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     setUser(null);
     setUserRole(null);
-  };
+  }, []);
 
   const isAdmin = userRole === 'admin';
 
+  // Memoize the context value payload to stop unnecessary child updates
+  const contextValue = useMemo(() => ({
+    user,
+    userRole,
+    isAdmin,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    refreshUserRole,
+  }), [user, userRole, isAdmin, loading, signUp, signIn, signOut, refreshUserRole]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        userRole,
-        isAdmin,
-        loading,
-        signUp,
-        signIn,
-        signOut,
-        refreshUserRole,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

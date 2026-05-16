@@ -33,29 +33,35 @@ export function AdminUsersPanel({ onSelectUser }: AdminUsersPanelProps) {
   }, []);
 
   useEffect(() => {
-    filterUsers();
+    let filtered = users;
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (roleFilter !== 'all') {
+      filtered = filtered.filter((user) => user.role === roleFilter);
+    }
+
+    setFilteredUsers(filtered);
   }, [searchTerm, roleFilter, users]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
       const data = await getAllUsers();
+      
+      // TEMPORARY FIX: Stop firing hundreds of DB requests on mount.
+      // If you need chat counts in the table, we need to update getAllUsers 
+      // to do a SQL JOIN count, rather than looping getUserStats.
+      const safeUsers = data.map(user => ({ ...user, chatCount: 0 }));
 
-      // Fire all stats requests at the exact same time!
-      const usersWithStats = await Promise.all(
-        data.map(async (user) => {
-          try {
-            const stats = await getUserStats(user.id);
-            return { ...user, chatCount: stats.chatCount };
-          } catch (error) {
-            console.error('Stats failed for user:', user.id, error);
-            return { ...user, chatCount: 0 }; // Fallback on failure
-          }
-        })
-      );
-
-      setUsers(usersWithStats);
-      setFilteredUsers(usersWithStats);
+      setUsers(safeUsers);
+      setFilteredUsers(safeUsers);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
