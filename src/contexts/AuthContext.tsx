@@ -5,6 +5,7 @@ import {
   useState,
   ReactNode,
 } from 'react';
+
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { Database } from '../lib/database.types';
@@ -17,16 +18,20 @@ interface AuthContextType {
   userRole: UserRole | null;
   isAdmin: boolean;
   loading: boolean;
+
   signUp: (
     email: string,
     password: string,
     userData: SignUpData
   ) => Promise<void>;
+
   signIn: (
     email: string,
     password: string
   ) => Promise<void>;
+
   signOut: () => Promise<void>;
+
   refreshUserRole: () => Promise<void>;
 }
 
@@ -47,45 +52,40 @@ export function AuthProvider({
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] =
+    useState<User | null>(null);
 
   const [userRole, setUserRole] =
     useState<UserRole | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const fetchUserRole = async (userId: string) => {
+  // =========================
+  // FETCH ROLE FROM JWT
+  // =========================
+  const fetchUserRole = async () => {
     try {
-      console.log(
-        'Fetching role for user:',
-        userId
-      );
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      const { data, error } = await supabase
-        .from('athletes')
-        .select('role')
-        .eq('id', userId)
-        .single();
+      const role =
+        session?.user?.user_metadata?.role;
 
-      console.log(
-        'Role query result:',
-        data
-      );
+      console.log('JWT role:', role);
 
-      if (error) {
-        console.error(
-          'Role fetch error:',
-          error
-        );
-
+      if (
+        role === 'admin' ||
+        role === 'user'
+      ) {
+        setUserRole(role);
+      } else {
         setUserRole(null);
-        return;
       }
-
-      setUserRole(data.role);
     } catch (error) {
       console.error(
-        'Unexpected role fetch error:',
+        'Error fetching JWT role:',
         error
       );
 
@@ -94,11 +94,12 @@ export function AuthProvider({
   };
 
   const refreshUserRole = async () => {
-    if (!user) return;
-
-    await fetchUserRole(user.id);
+    await fetchUserRole();
   };
 
+  // =========================
+  // INITIAL AUTH
+  // =========================
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -118,16 +119,10 @@ export function AuthProvider({
 
         setUser(currentUser);
 
-        if (currentUser) {
-          await fetchUserRole(
-            currentUser.id
-          );
-        } else {
-          setUserRole(null);
-        }
+        await fetchUserRole();
       } catch (error) {
         console.error(
-          'Error initializing auth:',
+          'Initialize auth error:',
           error
         );
 
@@ -140,6 +135,9 @@ export function AuthProvider({
 
     initializeAuth();
 
+    // =========================
+    // AUTH STATE LISTENER
+    // =========================
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
@@ -155,13 +153,10 @@ export function AuthProvider({
 
           setUser(currentUser);
 
-          if (currentUser) {
-            await fetchUserRole(
-              currentUser.id
-            );
-          } else {
-            setUserRole(null);
-          }
+          // DO NOT SET GLOBAL LOADING HERE
+          // causes infinite loading on tab switch
+
+          await fetchUserRole();
         } catch (error) {
           console.error(
             'Auth state change error:',
@@ -176,6 +171,9 @@ export function AuthProvider({
     };
   }, []);
 
+  // =========================
+  // SIGN UP
+  // =========================
   const signUp = async (
     email: string,
     password: string,
@@ -186,6 +184,7 @@ export function AuthProvider({
         await supabase.auth.signUp({
           email,
           password,
+
           options: {
             data: {
               name: userData.name,
@@ -196,6 +195,8 @@ export function AuthProvider({
                 userData.fitness_goal,
               dietary_restrictions:
                 userData.dietary_restrictions,
+
+              // DEFAULT ROLE
               role: 'user',
             },
           },
@@ -219,6 +220,9 @@ export function AuthProvider({
     }
   };
 
+  // =========================
+  // SIGN IN
+  // =========================
   const signIn = async (
     email: string,
     password: string
@@ -250,6 +254,9 @@ export function AuthProvider({
     }
   };
 
+  // =========================
+  // SIGN OUT
+  // =========================
   const signOut = async () => {
     try {
       const { error } =
@@ -276,10 +283,11 @@ export function AuthProvider({
     }
   };
 
+  // =========================
+  // ADMIN CHECK
+  // =========================
   const isAdmin =
-    userRole === 'admin' ||
-    user?.user_metadata?.role ===
-      'admin';
+    userRole === 'admin';
 
   return (
     <AuthContext.Provider
@@ -288,9 +296,11 @@ export function AuthProvider({
         userRole,
         isAdmin,
         loading,
+
         signUp,
         signIn,
         signOut,
+
         refreshUserRole,
       }}
     >
@@ -299,10 +309,12 @@ export function AuthProvider({
   );
 }
 
+// =========================
+// HOOKS
+// =========================
 export function useAuth() {
-  const context = useContext(
-    AuthContext
-  );
+  const context =
+    useContext(AuthContext);
 
   if (context === undefined) {
     throw new Error(
