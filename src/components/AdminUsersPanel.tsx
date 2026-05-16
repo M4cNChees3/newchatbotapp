@@ -210,7 +210,9 @@ export function AdminUsersPanel({ onSelectUser }: AdminUsersPanelProps) {
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-600">
-                  {format(new Date(user.created_at), 'MMM d, yyyy')}
+                  {user.created_at
+  ? format(new Date(user.created_at), 'MMM d, yyyy')
+  : 'Unknown'}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>

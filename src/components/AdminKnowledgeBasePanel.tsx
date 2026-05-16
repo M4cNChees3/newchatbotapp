@@ -425,10 +425,9 @@ export function AdminKnowledgeBasePanel() {
               </p>
 
               <div className="text-xs text-gray-500">
-                {format(
-                  new Date(article.created_at),
-                  'MMM d, yyyy'
-                )}
+                {article.created_at
+  ? format(new Date(article.created_at), 'MMM d, yyyy')
+  : 'Unknown'}
               </div>
             </div>
           ))}
