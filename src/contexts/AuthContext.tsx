@@ -1,37 +1,18 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from 'react';
-
-import { User } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { Database } from '../lib/database.types';
 
-type UserRole =
-  Database['public']['Tables']['athletes']['Row']['role'];
+type UserRole = Database['public']['Tables']['athletes']['Row']['role'];
 
 interface AuthContextType {
   user: User | null;
   userRole: UserRole | null;
   isAdmin: boolean;
   loading: boolean;
-
-  signUp: (
-    email: string,
-    password: string,
-    userData: SignUpData
-  ) => Promise<void>;
-
-  signIn: (
-    email: string,
-    password: string
-  ) => Promise<void>;
-
+  signUp: (email: string, password: string, userData: SignUpData) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-
   refreshUserRole: () => Promise<void>;
 }
 
@@ -43,89 +24,54 @@ interface SignUpData {
   dietary_restrictions?: string;
 }
 
-const AuthContext = createContext<
-  AuthContextType | undefined
->(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [user, setUser] =
-    useState<User | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [userRole, setUserRole] =
-    useState<UserRole | null>(null);
+  // ==========================================
+  // EXTRACT ROLE DIRECTLY FROM PASSED SESSION
+  // ==========================================
+  // No longer async, no longer calls getSession(), completely immune to race conditions
+  const extractAndSetRole = (session: Session | null) => {
+    const role = session?.user?.user_metadata?.role;
+    console.log('Processing session role:', role);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  // =========================
-  // FETCH ROLE FROM JWT
-  // =========================
-  const fetchUserRole = async () => {
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const role =
-        session?.user?.user_metadata?.role;
-
-      console.log('JWT role:', role);
-
-      if (
-        role === 'admin' ||
-        role === 'user'
-      ) {
-        setUserRole(role);
-      } else {
-        setUserRole(null);
-      }
-    } catch (error) {
-      console.error(
-        'Error fetching JWT role:',
-        error
-      );
-
+    if (role === 'admin' || role === 'user') {
+      setUserRole(role);
+    } else {
       setUserRole(null);
     }
   };
 
+  // Optional: If you want to use the database table instead of metadata, swap with this:
+  /*
+  const fetchRoleFromDatabase = async (userId: string) => {
+    const { data } = await supabase.from('athletes').select('role').eq('id', userId).single();
+    if (data?.role) setUserRole(data.role as UserRole);
+  };
+  */
+
   const refreshUserRole = async () => {
-    await fetchUserRole();
+    const { data: { session } } = await supabase.auth.getSession();
+    extractAndSetRole(session);
   };
 
   // =========================
-  // INITIAL AUTH
+  // INITIAL AUTH & LISTENER
   // =========================
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         setLoading(true);
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        console.log(
-          'Initial session:',
-          session
-        );
-
-        const currentUser =
-          session?.user ?? null;
-
-        setUser(currentUser);
-
-        await fetchUserRole();
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        setUser(session?.user ?? null);
+        extractAndSetRole(session);
       } catch (error) {
-        console.error(
-          'Initialize auth error:',
-          error
-        );
-
+        console.error('Initialize auth error:', error);
         setUser(null);
         setUserRole(null);
       } finally {
@@ -138,30 +84,20 @@ export function AuthProvider({
     // =========================
     // AUTH STATE LISTENER
     // =========================
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         try {
-          console.log(
-            'Auth state changed:',
-            event
-          );
-
-          const currentUser =
-            session?.user ?? null;
-
+          console.log('Auth state changed event:', event);
+          
+          const currentUser = session?.user ?? null;
           setUser(currentUser);
 
-          // DO NOT SET GLOBAL LOADING HERE
-          // causes infinite loading on tab switch
-
-          await fetchUserRole();
+          // CRITICAL FIX: Extract the role directly from the event payload.
+          // Do not await an external getSession call here.
+          extractAndSetRole(session);
+          
         } catch (error) {
-          console.error(
-            'Auth state change error:',
-            error
-          );
+          console.error('Auth state change error:', error);
         }
       }
     );
@@ -174,120 +110,44 @@ export function AuthProvider({
   // =========================
   // SIGN UP
   // =========================
-  const signUp = async (
-    email: string,
-    password: string,
-    userData: SignUpData
-  ) => {
-    try {
-      const { error } =
-        await supabase.auth.signUp({
-          email,
-          password,
+  const signUp = async (email: string, password: string, userData: SignUpData) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name: userData.name,
+          age: userData.age,
+          sport_type: userData.sport_type,
+          fitness_goal: userData.fitness_goal,
+          dietary_restrictions: userData.dietary_restrictions,
+          role: 'user', // Default role assigned to metadata
+        },
+      },
+    });
 
-          options: {
-            data: {
-              name: userData.name,
-              age: userData.age,
-              sport_type:
-                userData.sport_type,
-              fitness_goal:
-                userData.fitness_goal,
-              dietary_restrictions:
-                userData.dietary_restrictions,
-
-              // DEFAULT ROLE
-              role: 'user',
-            },
-          },
-        });
-
-      if (error) {
-        console.error(
-          'Sign up error:',
-          error
-        );
-
-        throw error;
-      }
-    } catch (error) {
-      console.error(
-        'Unexpected sign up error:',
-        error
-      );
-
-      throw error;
-    }
+    if (error) throw error;
   };
 
   // =========================
   // SIGN IN
   // =========================
-  const signIn = async (
-    email: string,
-    password: string
-  ) => {
-    try {
-      const { error } =
-        await supabase.auth.signInWithPassword(
-          {
-            email,
-            password,
-          }
-        );
-
-      if (error) {
-        console.error(
-          'Sign in error:',
-          error
-        );
-
-        throw error;
-      }
-    } catch (error) {
-      console.error(
-        'Unexpected sign in error:',
-        error
-      );
-
-      throw error;
-    }
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
   // =========================
   // SIGN OUT
   // =========================
   const signOut = async () => {
-    try {
-      const { error } =
-        await supabase.auth.signOut();
-
-      if (error) {
-        console.error(
-          'Sign out error:',
-          error
-        );
-
-        throw error;
-      }
-
-      setUser(null);
-      setUserRole(null);
-    } catch (error) {
-      console.error(
-        'Unexpected sign out error:',
-        error
-      );
-
-      throw error;
-    }
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+    setUser(null);
+    setUserRole(null);
   };
 
-  // =========================
-  // ADMIN CHECK
-  // =========================
-  const isAdmin =
-    userRole === 'admin';
+  const isAdmin = userRole === 'admin';
 
   return (
     <AuthContext.Provider
@@ -296,11 +156,9 @@ export function AuthProvider({
         userRole,
         isAdmin,
         loading,
-
         signUp,
         signIn,
         signOut,
-
         refreshUserRole,
       }}
     >
@@ -309,24 +167,14 @@ export function AuthProvider({
   );
 }
 
-// =========================
-// HOOKS
-// =========================
 export function useAuth() {
-  const context =
-    useContext(AuthContext);
-
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error(
-      'useAuth must be used within an AuthProvider'
-    );
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-
   return context;
 }
 
 export function useIsAdmin() {
-  const { isAdmin } = useAuth();
-
-  return isAdmin;
+  return useAuth().isAdmin;
 }

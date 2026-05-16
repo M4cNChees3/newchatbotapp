@@ -41,32 +41,21 @@ export function AdminUsersPanel({ onSelectUser }: AdminUsersPanelProps) {
       setLoading(true);
       const data = await getAllUsers();
 
-      const usersWithStats: UserWithStats[] = [];
+      // Fire all stats requests at the exact same time!
+      const usersWithStats = await Promise.all(
+        data.map(async (user) => {
+          try {
+            const stats = await getUserStats(user.id);
+            return { ...user, chatCount: stats.chatCount };
+          } catch (error) {
+            console.error('Stats failed for user:', user.id, error);
+            return { ...user, chatCount: 0 }; // Fallback on failure
+          }
+        })
+      );
 
-for (const user of data) {
-  try {
-    const stats = await getUserStats(user.id);
-
-    usersWithStats.push({
-      ...user,
-      chatCount: stats.chatCount,
-    });
-  } catch (error) {
-    console.error(
-      'Stats failed for user:',
-      user.id,
-      error
-    );
-
-    usersWithStats.push({
-      ...user,
-      chatCount: 0,
-    });
-  }
-}
-
-setUsers(usersWithStats);
-setFilteredUsers(usersWithStats);
+      setUsers(usersWithStats);
+      setFilteredUsers(usersWithStats);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
@@ -132,7 +121,7 @@ setFilteredUsers(usersWithStats);
     }
   };
 
-  if (loading) {
+  if (loading && users.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">Loading users...</div>

@@ -126,7 +126,12 @@ export function AdminPage() {
 
         <main className="flex-1 overflow-hidden">
           {activeTab === 'users' && <AdminUsersPanel onSelectUser={handleSelectUser} />}
-          {activeTab === 'chats' && <AdminChatViewer />}
+          {activeTab === 'chats' && (
+            <AdminChatViewer 
+              selectedUser={selectedUser} 
+              onClearSelection={() => setSelectedUser(null)} 
+            />
+          )}
           {activeTab === 'knowledge' && <AdminKnowledgeBasePanel />}
         </main>
       </div>

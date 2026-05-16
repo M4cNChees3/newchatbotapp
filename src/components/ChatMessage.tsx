@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 
 interface ChatMessageProps {
   message: {
+    id: string; // ✨ Added this line to fix the TypeScript error
     role: 'user' | 'assistant';
     content: string;
     timestamp: string;

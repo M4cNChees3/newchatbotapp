@@ -4,12 +4,16 @@ import { getAllUsers, getUserChats, deleteChatMessage } from '../lib/adminApi';
 import { Database } from '../lib/database.types';
 import { ChatMessage } from './ChatMessage';
 import { ConfirmDialog } from './ConfirmDialog';
-import { format } from 'date-fns';
 
 type Athlete = Database['public']['Tables']['athletes']['Row'];
 type ChatMessageType = Database['public']['Tables']['chat_messages']['Row'];
 
-export function AdminChatViewer() {
+interface AdminChatViewerProps {
+  selectedUser?: Athlete | null;
+  onClearSelection?: () => void;
+}
+
+export function AdminChatViewer({ selectedUser: propSelectedUser, onClearSelection }: AdminChatViewerProps) {
   const [users, setUsers] = useState<Athlete[]>([]);
   const [selectedUser, setSelectedUser] = useState<Athlete | null>(null);
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
@@ -21,13 +25,24 @@ export function AdminChatViewer() {
   }>({ isOpen: false, messageId: null });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Load initial sidebar users list
   useEffect(() => {
     loadUsers();
   }, []);
 
+  // Synchronize state if an admin selects a user from the global AdminPage dashboard
+  useEffect(() => {
+    if (propSelectedUser) {
+      setSelectedUser(propSelectedUser);
+    }
+  }, [propSelectedUser]);
+
+  // Fetch chats whenever the selected user changes
   useEffect(() => {
     if (selectedUser) {
       loadUserChats(selectedUser.id);
+    } else {
+      setMessages([]);
     }
   }, [selectedUser]);
 
@@ -43,7 +58,7 @@ export function AdminChatViewer() {
     try {
       setLoading(true);
       const data = await getAllUsers();
-      setUsers(data);
+      setUsers(data || []);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
@@ -55,7 +70,7 @@ export function AdminChatViewer() {
     try {
       setLoadingMessages(true);
       const data = await getUserChats(userId);
-      setMessages(data);
+      setMessages(data || []);
     } catch (error) {
       console.error('Error loading chats:', error);
     } finally {
@@ -75,23 +90,23 @@ export function AdminChatViewer() {
     }
   };
 
-  const getUserLastMessageTime = (userId: string) => {
-    const userMessages = messages.filter((m) => m.athlete_id === userId);
-    if (userMessages.length === 0) return null;
-    return userMessages[userMessages.length - 1].timestamp;
+  const handleCloseChatView = () => {
+    setSelectedUser(null);
+    if (onClearSelection) onClearSelection();
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500">Loading users...</div>
+      <div className="flex items-center justify-center h-full min-h-[250px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
 
   return (
     <div className="h-full flex flex-col md:flex-row bg-white">
-      <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col">
+      {/* Sidebar List */}
+      <div className={`w-full md:w-80 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <MessageSquare className="w-6 h-6 text-emerald-600" />
@@ -126,7 +141,8 @@ export function AdminChatViewer() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col">
+      {/* Main Chat Box */}
+      <div className={`flex-1 flex flex-col ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
         {selectedUser ? (
           <>
             <div className="p-4 border-b border-gray-200 bg-gray-50">
@@ -141,8 +157,8 @@ export function AdminChatViewer() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setSelectedUser(null)}
-                  className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                  onClick={handleCloseChatView}
+                  className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -157,7 +173,7 @@ export function AdminChatViewer() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="text-gray-500">Loading messages...</div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-gray-500">
@@ -193,10 +209,10 @@ export function AdminChatViewer() {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-gray-500 p-4">
             <MessageSquare className="w-16 h-16 mb-4 text-gray-300" />
-            <p className="text-lg font-medium">Select a user to view their chat history</p>
-            <p className="text-sm mt-1">Choose from the list on the left</p>
+            <p className="text-lg font-medium text-center">Select a user to view their chat history</p>
+            <p className="text-sm mt-1 text-center">Choose from the list on the left</p>
           </div>
         )}
       </div>

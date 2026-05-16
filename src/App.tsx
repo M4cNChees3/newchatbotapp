@@ -19,12 +19,9 @@ function ProtectedRoute({
   children: React.ReactNode;
   adminOnly?: boolean;
 }) {
-  const {
-    user,
-    loading,
-    isAdmin,
-  } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
 
+  // 1. If it's initial load, show full screen loader
   if (loading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50">
@@ -33,22 +30,24 @@ function ProtectedRoute({
     );
   }
 
+  // 2. If no user, kick to login
   if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 3. CRITICAL FIX: If we require admin, but auth is still loading the role profile,
+  // hold the line and wait for it to resolve instead of dropping through!
+  if (adminOnly && loading) {
     return (
-      <Navigate
-        to="/login"
-        replace
-      />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50">
+        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+      </div>
     );
   }
 
+  // 4. If loading is done and they aren't an admin, kick them out
   if (adminOnly && !isAdmin) {
-    return (
-      <Navigate
-        to="/"
-        replace
-      />
-    );
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
