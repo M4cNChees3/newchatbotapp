@@ -5,11 +5,8 @@ import {
   useState,
   ReactNode,
 } from 'react';
-
 import { User } from '@supabase/supabase-js';
-
 import { supabase } from '../lib/supabase';
-
 import { Database } from '../lib/database.types';
 
 type UserRole =
@@ -20,20 +17,13 @@ interface AuthContextType {
   userRole: UserRole | null;
   isAdmin: boolean;
   loading: boolean;
-
   signUp: (
     email: string,
     password: string,
     userData: SignUpData
   ) => Promise<void>;
-
-  signIn: (
-    email: string,
-    password: string
-  ) => Promise<void>;
-
+  signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-
   refreshUserRole: () => Promise<void>;
 }
 
@@ -45,87 +35,50 @@ interface SignUpData {
   dietary_restrictions?: string;
 }
 
-const AuthContext =
-  createContext<AuthContextType | undefined>(
-    undefined
-  );
+const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export function AuthProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] =
-    useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [userRole, setUserRole] =
-    useState<UserRole | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  // =========================
-  // Fetch User Role
-  // =========================
-  const fetchUserRole = async (
-    userId: string
-  ) => {
+  const fetchUserRole = async (userId: string) => {
     try {
-      console.log(
-        'Fetching role for user:',
-        userId
-      );
+      console.log('Fetching role for user:', userId);
 
       const { data, error } = await supabase
         .from('athletes')
         .select('role')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
       console.log('Role query result:', data);
 
       if (error) {
-        console.error(
-          'Error fetching user role:',
-          error
-        );
-
-        setUserRole(null);
-        return;
-      }
-
-      if (!data) {
-        console.warn(
-          'No athlete row found for user'
-        );
-
+        console.error('Role fetch error:', error);
         setUserRole(null);
         return;
       }
 
       setUserRole(data.role);
     } catch (error) {
-      console.error(
-        'Unexpected role fetch error:',
-        error
-      );
-
+      console.error('Unexpected role fetch error:', error);
       setUserRole(null);
     }
   };
 
-  // =========================
-  // Refresh Role
-  // =========================
   const refreshUserRole = async () => {
     if (!user) return;
 
     await fetchUserRole(user.id);
   };
 
-  // =========================
-  // Initial Session Load
-  // =========================
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -135,28 +88,22 @@ export function AuthProvider({
           data: { session },
         } = await supabase.auth.getSession();
 
-        console.log(
-          'Initial session:',
-          session
-        );
+        console.log('Initial session:', session);
 
-        const currentUser =
-          session?.user ?? null;
+        const currentUser = session?.user ?? null;
 
         setUser(currentUser);
 
         if (currentUser) {
-          await fetchUserRole(
-            currentUser.id
-          );
+          await fetchUserRole(currentUser.id);
         } else {
           setUserRole(null);
         }
       } catch (error) {
-        console.error(
-          'Error initializing auth:',
-          error
-        );
+        console.error('Error initializing auth:', error);
+
+        setUser(null);
+        setUserRole(null);
       } finally {
         setLoading(false);
       }
@@ -164,38 +111,26 @@ export function AuthProvider({
 
     initializeAuth();
 
-    // =========================
-    // Auth State Listener
-    // =========================
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         try {
-          console.log(
-            'Auth state changed:',
-            _event
-          );
+          console.log('Auth state changed:', event);
 
           setLoading(true);
 
-          const currentUser =
-            session?.user ?? null;
+          const currentUser = session?.user ?? null;
 
           setUser(currentUser);
 
           if (currentUser) {
-            await fetchUserRole(
-              currentUser.id
-            );
+            await fetchUserRole(currentUser.id);
           } else {
             setUserRole(null);
           }
         } catch (error) {
-          console.error(
-            'Auth state error:',
-            error
-          );
+          console.error('Auth state change error:', error);
         } finally {
           setLoading(false);
         }
@@ -207,83 +142,87 @@ export function AuthProvider({
     };
   }, []);
 
-  // =========================
-  // Sign Up
-  // =========================
   const signUp = async (
     email: string,
     password: string,
     userData: SignUpData
   ) => {
-    const { error } =
-      await supabase.auth.signUp({
+    try {
+      const { error } = await supabase.auth.signUp({
         email,
         password,
-
         options: {
           data: {
             name: userData.name,
             age: userData.age,
-            sport_type:
-              userData.sport_type,
-            fitness_goal:
-              userData.fitness_goal,
+            sport_type: userData.sport_type,
+            fitness_goal: userData.fitness_goal,
             dietary_restrictions:
               userData.dietary_restrictions,
+            role: 'user',
           },
         },
       });
 
-    if (error) {
+      if (error) {
+        console.error('Sign up error:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Unexpected sign up error:', error);
       throw error;
     }
   };
 
-  // =========================
-  // Sign In
-  // =========================
   const signIn = async (
     email: string,
     password: string
   ) => {
-    const { error } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    try {
+      setLoading(true);
 
-    if (error) {
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Unexpected sign in error:', error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  // =========================
-  // Sign Out
-  // =========================
   const signOut = async () => {
-    const { error } =
-      await supabase.auth.signOut();
+    try {
+      setLoading(true);
 
-    if (error) {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error('Sign out error:', error);
+        throw error;
+      }
+
+      setUser(null);
+      setUserRole(null);
+    } catch (error) {
+      console.error('Unexpected sign out error:', error);
       throw error;
+    } finally {
+      setLoading(false);
     }
-
-    setUser(null);
-    setUserRole(null);
   };
 
-  // =========================
-  // Admin Check
-  // =========================
   const isAdmin =
-    userRole === 'admin';
-
-  console.log('Current Auth State:', {
-    user,
-    userRole,
-    isAdmin,
-    loading,
-  });
+    userRole === 'admin' ||
+    user?.user_metadata?.role === 'admin';
 
   return (
     <AuthContext.Provider
@@ -303,12 +242,8 @@ export function AuthProvider({
   );
 }
 
-// =========================
-// Hook
-// =========================
 export function useAuth() {
-  const context =
-    useContext(AuthContext);
+  const context = useContext(AuthContext);
 
   if (context === undefined) {
     throw new Error(
@@ -319,11 +254,7 @@ export function useAuth() {
   return context;
 }
 
-// =========================
-// Admin Hook
-// =========================
 export function useIsAdmin() {
   const { isAdmin } = useAuth();
-
   return isAdmin;
 }
