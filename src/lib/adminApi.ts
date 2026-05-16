@@ -188,35 +188,29 @@ export async function deleteChatMessage(
 export async function getUserStats(
   athleteId: string
 ) {
-  const [
-    chatsResult,
-    metricsResult,
-    nutritionResult,
-  ] = await Promise.all([
-    supabase
-      .from('chat_messages')
-      .select('id', {
-        count: 'exact',
-        head: true,
-      })
-      .eq('athlete_id', athleteId),
+  const chatsResult = await supabase
+  .from('chat_messages')
+  .select('id', {
+    count: 'exact',
+    head: true,
+  })
+  .eq('athlete_id', athleteId);
 
-    supabase
-      .from('fitness_metrics')
-      .select('id', {
-        count: 'exact',
-        head: true,
-      })
-      .eq('athlete_id', athleteId),
+const metricsResult = await supabase
+  .from('fitness_metrics')
+  .select('id', {
+    count: 'exact',
+    head: true,
+  })
+  .eq('athlete_id', athleteId);
 
-    supabase
-      .from('nutrition_logs')
-      .select('id', {
-        count: 'exact',
-        head: true,
-      })
-      .eq('athlete_id', athleteId),
-  ]);
+const nutritionResult = await supabase
+  .from('nutrition_logs')
+  .select('id', {
+    count: 'exact',
+    head: true,
+  })
+  .eq('athlete_id', athleteId);
 
   return {
     chatCount:

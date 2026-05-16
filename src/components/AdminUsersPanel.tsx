@@ -41,15 +41,32 @@ export function AdminUsersPanel({ onSelectUser }: AdminUsersPanelProps) {
       setLoading(true);
       const data = await getAllUsers();
 
-      const usersWithStats = await Promise.all(
-        data.map(async (user) => {
-          const stats = await getUserStats(user.id);
-          return { ...user, chatCount: stats.chatCount };
-        })
-      );
+      const usersWithStats: UserWithStats[] = [];
 
-      setUsers(usersWithStats);
-      setFilteredUsers(usersWithStats);
+for (const user of data) {
+  try {
+    const stats = await getUserStats(user.id);
+
+    usersWithStats.push({
+      ...user,
+      chatCount: stats.chatCount,
+    });
+  } catch (error) {
+    console.error(
+      'Stats failed for user:',
+      user.id,
+      error
+    );
+
+    usersWithStats.push({
+      ...user,
+      chatCount: 0,
+    });
+  }
+}
+
+setUsers(usersWithStats);
+setFilteredUsers(usersWithStats);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
