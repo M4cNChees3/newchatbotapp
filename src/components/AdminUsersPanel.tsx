@@ -41,15 +41,8 @@ export function AdminUsersPanel({ onSelectUser }: AdminUsersPanelProps) {
       setLoading(true);
       const data = await getAllUsers();
 
-      const usersWithStats = await Promise.all(
-        data.map(async (user) => {
-          const stats = await getUserStats(user.id);
-          return { ...user, chatCount: stats.chatCount };
-        })
-      );
-
-      setUsers(usersWithStats);
-      setFilteredUsers(usersWithStats);
+      setUsers(data);
+      setFilteredUsers(data);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
