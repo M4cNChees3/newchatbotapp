@@ -12,10 +12,20 @@ import { MetricsPanel } from './components/MetricsPanel';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 
-function ProtectedRoute({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) {
-  const { user, loading, isAdmin } = useAuth();
+function ProtectedRoute({
+  children,
+  adminOnly = false,
+}: {
+  children: React.ReactNode;
+  adminOnly?: boolean;
+}) {
+  const {
+    user,
+    loading,
+    isAdmin,
+  } = useAuth();
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-teal-50">
         <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
@@ -24,11 +34,21 @@ function ProtectedRoute({ children, adminOnly = false }: { children: React.React
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
   }
 
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    );
   }
 
   return <>{children}</>;

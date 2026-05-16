@@ -22,7 +22,10 @@ interface AuthContextType {
     password: string,
     userData: SignUpData
   ) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUserRole: () => Promise<void>;
 }
@@ -35,9 +38,9 @@ interface SignUpData {
   dietary_restrictions?: string;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+const AuthContext = createContext<
+  AuthContextType | undefined
+>(undefined);
 
 export function AuthProvider({
   children,
@@ -45,12 +48,18 @@ export function AuthProvider({
   children: ReactNode;
 }) {
   const [user, setUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
+
+  const [userRole, setUserRole] =
+    useState<UserRole | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   const fetchUserRole = async (userId: string) => {
     try {
-      console.log('Fetching role for user:', userId);
+      console.log(
+        'Fetching role for user:',
+        userId
+      );
 
       const { data, error } = await supabase
         .from('athletes')
@@ -58,17 +67,28 @@ export function AuthProvider({
         .eq('id', userId)
         .single();
 
-      console.log('Role query result:', data);
+      console.log(
+        'Role query result:',
+        data
+      );
 
       if (error) {
-        console.error('Role fetch error:', error);
+        console.error(
+          'Role fetch error:',
+          error
+        );
+
         setUserRole(null);
         return;
       }
 
       setUserRole(data.role);
     } catch (error) {
-      console.error('Unexpected role fetch error:', error);
+      console.error(
+        'Unexpected role fetch error:',
+        error
+      );
+
       setUserRole(null);
     }
   };
@@ -88,19 +108,28 @@ export function AuthProvider({
           data: { session },
         } = await supabase.auth.getSession();
 
-        console.log('Initial session:', session);
+        console.log(
+          'Initial session:',
+          session
+        );
 
-        const currentUser = session?.user ?? null;
+        const currentUser =
+          session?.user ?? null;
 
         setUser(currentUser);
 
         if (currentUser) {
-          await fetchUserRole(currentUser.id);
+          await fetchUserRole(
+            currentUser.id
+          );
         } else {
           setUserRole(null);
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        console.error(
+          'Error initializing auth:',
+          error
+        );
 
         setUser(null);
         setUserRole(null);
@@ -116,23 +145,28 @@ export function AuthProvider({
     } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         try {
-          console.log('Auth state changed:', event);
+          console.log(
+            'Auth state changed:',
+            event
+          );
 
-          setLoading(true);
-
-          const currentUser = session?.user ?? null;
+          const currentUser =
+            session?.user ?? null;
 
           setUser(currentUser);
 
           if (currentUser) {
-            await fetchUserRole(currentUser.id);
+            await fetchUserRole(
+              currentUser.id
+            );
           } else {
             setUserRole(null);
           }
         } catch (error) {
-          console.error('Auth state change error:', error);
-        } finally {
-          setLoading(false);
+          console.error(
+            'Auth state change error:',
+            error
+          );
         }
       }
     );
@@ -148,28 +182,39 @@ export function AuthProvider({
     userData: SignUpData
   ) => {
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: userData.name,
-            age: userData.age,
-            sport_type: userData.sport_type,
-            fitness_goal: userData.fitness_goal,
-            dietary_restrictions:
-              userData.dietary_restrictions,
-            role: 'user',
+      const { error } =
+        await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name: userData.name,
+              age: userData.age,
+              sport_type:
+                userData.sport_type,
+              fitness_goal:
+                userData.fitness_goal,
+              dietary_restrictions:
+                userData.dietary_restrictions,
+              role: 'user',
+            },
           },
-        },
-      });
+        });
 
       if (error) {
-        console.error('Sign up error:', error);
+        console.error(
+          'Sign up error:',
+          error
+        );
+
         throw error;
       }
     } catch (error) {
-      console.error('Unexpected sign up error:', error);
+      console.error(
+        'Unexpected sign up error:',
+        error
+      );
+
       throw error;
     }
   };
@@ -179,50 +224,62 @@ export function AuthProvider({
     password: string
   ) => {
     try {
-      setLoading(true);
-
       const { error } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+        await supabase.auth.signInWithPassword(
+          {
+            email,
+            password,
+          }
+        );
 
       if (error) {
-        console.error('Sign in error:', error);
+        console.error(
+          'Sign in error:',
+          error
+        );
+
         throw error;
       }
     } catch (error) {
-      console.error('Unexpected sign in error:', error);
+      console.error(
+        'Unexpected sign in error:',
+        error
+      );
+
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
-      setLoading(true);
-
-      const { error } = await supabase.auth.signOut();
+      const { error } =
+        await supabase.auth.signOut();
 
       if (error) {
-        console.error('Sign out error:', error);
+        console.error(
+          'Sign out error:',
+          error
+        );
+
         throw error;
       }
 
       setUser(null);
       setUserRole(null);
     } catch (error) {
-      console.error('Unexpected sign out error:', error);
+      console.error(
+        'Unexpected sign out error:',
+        error
+      );
+
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const isAdmin =
     userRole === 'admin' ||
-    user?.user_metadata?.role === 'admin';
+    user?.user_metadata?.role ===
+      'admin';
 
   return (
     <AuthContext.Provider
@@ -243,7 +300,9 @@ export function AuthProvider({
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(
+    AuthContext
+  );
 
   if (context === undefined) {
     throw new Error(
@@ -256,5 +315,6 @@ export function useAuth() {
 
 export function useIsAdmin() {
   const { isAdmin } = useAuth();
+
   return isAdmin;
 }
