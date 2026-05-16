@@ -8,13 +8,21 @@ type KnowledgeBaseInsert = Database['public']['Tables']['knowledge_base']['Inser
 type KnowledgeBaseUpdate = Database['public']['Tables']['knowledge_base']['Update'];
 
 export async function getAllUsers() {
-  const { data, error } = await supabase
-    .from('athletes')
-    .select('*')
-    .order('created_at', { ascending: false });
+  console.log('Fetching users...');
 
-  if (error) throw error;
-  return data as Athlete[];
+  const response = await supabase
+    .from('athletes')
+    .select('id, name, email, role')
+    .limit(5);
+
+  console.log('Users response:', response);
+
+  if (response.error) {
+    console.error(response.error);
+    return [];
+  }
+
+  return response.data || [];
 }
 
 export async function getUserChats(athleteId: string) {
