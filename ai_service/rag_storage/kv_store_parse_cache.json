@@ -1,0 +1,301 @@
+{
+  "616dfd4fe56642c433a9918be8420880": {
+    "content_list": [
+      {
+        "type": "text",
+        "text": "Laporan Riset Komprehensif: Strategi Intervensi Gizi Okupasi dan Penanggulangan Obesitas di Lingkungan Kerja Melalui 30 Protokol Aplikatif ",
+        "text_level": 1,
+        "bbox": [
+          114,
+          107,
+          823,
+          285
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "1. Pendahuluan: Urgensi Penanganan Obesitas dalam Ekosistem Kerja Modern ",
+        "text_level": 1,
+        "bbox": [
+          116,
+          301,
+          870,
+          354
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Transformasi lanskap industri menuju ekonomi berbasis pengetahuan dan jasa telah membawa perubahan fundamental pada pola aktivitas fisik manusia. Di Indonesia, fenomena ini bermanifestasi dalam bentuk peningkatan prevalensi obesitas di kalangan pekerja, khususnya pada sektor perkantoran (white-collar workers). Obesitas di tempat kerja tidak lagi dapat dipandang semata-mata sebagai masalah estetika atau kesehatan pribadi, melainkan telah berevolusi menjadi krisis kesehatan masyarakat dan beban ekonomi bagi korporasi. Kondisi ini berkorelasi linier dengan peningkatan risiko penyakit tidak menular (PTM) seperti diabetes melitus tipe 2, hipertensi, dislipidemia, dan penyakit kardiovaskular, yang secara kolektif menurunkan produktivitas, meningkatkan angka absensi (ketidakhadiran), dan membebani biaya asuransi kesehatan perusahaan. ",
+        "bbox": [
+          114,
+          369,
+          875,
+          539
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Analisis mendalam terhadap literatur dan pedoman kesehatan, termasuk referensi dari Kementerian Kesehatan Republik Indonesia (Kemenkes RI) dan berbagai studi gizi klinis, menunjukkan bahwa akar permasalahan obesitas pekerja bersifat multifaktorial. Faktor-faktor tersebut meliputi pola makan yang tidak seimbang, perilaku sedenter yang berkepanjangan, stres kerja yang memicu emotional eating, serta lingkungan pangan (food environment) di sekitar kantor yang bersifat obesogenik—mendukung terjadinya obesitas melalui ketersediaan makanan tinggi kalori namun rendah nutrisi. ",
+        "bbox": [
+          114,
+          541,
+          867,
+          657
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Laporan ini menyajikan kerangka kerja strategis yang dielaborasi ke dalam 30 tips atau protokol gizi yang efektif, aplikatif, dan berbasis bukti (evidence-based). Pendekatan ini dirancang khusus untuk konteks sosiokultural Indonesia, mengakomodasi realitas kuliner lokal seperti budaya \"Warteg\", \"Nasi Padang\", dan kegemaran mengonsumsi gorengan, serta dinamika sosial di tempat kerja. Setiap protokol dianalisis secara mendalam mulai dari mekanisme fisiologis, implikasi psikologis, hingga strategi implementasi praktisnya. ",
+        "bbox": [
+          114,
+          660,
+          879,
+          761
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "2. Pilar I: Fondasi Fisiologis dan Paradigma Gizi Seimbang (Tips 1-5) ",
+        "text_level": 1,
+        "bbox": [
+          116,
+          776,
+          789,
+          830
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Sebelum melangkah pada taktik spesifik, intervensi gizi harus dibangun di atas pemahaman yang kuat mengenai kebutuhan fisiologis tubuh pekerja. Pekerja kantoran umumnya memiliki pengeluaran energi harian (Total Daily Energy Expenditure/TDEE) yang rendah karena ",
+        "bbox": [
+          116,
+          844,
+          857,
+          896
+        ],
+        "page_idx": 0
+      }
+    ],
+    "doc_id": "doc-3c6811ba02662e39a5cf1da759e04ddb",
+    "mtime": 1779021683.6113348,
+    "parse_config": {
+      "parser": "mineru",
+      "parse_method": "auto"
+    },
+    "cached_at": 1779022293.0787742,
+    "cache_version": "1.0",
+    "create_time": 1779022293,
+    "update_time": 1779022293,
+    "_id": "616dfd4fe56642c433a9918be8420880"
+  },
+  "9a77d5d8e2928eb1fcbc4c42d493b27b": {
+    "content_list": [
+      {
+        "type": "text",
+        "text": "Laporan Riset Komprehensif: Strategi Intervensi Gizi Okupasi dan Penanggulangan Obesitas di Lingkungan Kerja Melalui 30 Protokol Aplikatif ",
+        "text_level": 1,
+        "bbox": [
+          114,
+          107,
+          823,
+          285
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "1. Pendahuluan: Urgensi Penanganan Obesitas dalam Ekosistem Kerja Modern ",
+        "text_level": 1,
+        "bbox": [
+          116,
+          301,
+          870,
+          354
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Transformasi lanskap industri menuju ekonomi berbasis pengetahuan dan jasa telah membawa perubahan fundamental pada pola aktivitas fisik manusia. Di Indonesia, fenomena ini bermanifestasi dalam bentuk peningkatan prevalensi obesitas di kalangan pekerja, khususnya pada sektor perkantoran (white-collar workers). Obesitas di tempat kerja tidak lagi dapat dipandang semata-mata sebagai masalah estetika atau kesehatan pribadi, melainkan telah berevolusi menjadi krisis kesehatan masyarakat dan beban ekonomi bagi korporasi. Kondisi ini berkorelasi linier dengan peningkatan risiko penyakit tidak menular (PTM) seperti diabetes melitus tipe 2, hipertensi, dislipidemia, dan penyakit kardiovaskular, yang secara kolektif menurunkan produktivitas, meningkatkan angka absensi (ketidakhadiran), dan membebani biaya asuransi kesehatan perusahaan. ",
+        "bbox": [
+          114,
+          369,
+          875,
+          539
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Analisis mendalam terhadap literatur dan pedoman kesehatan, termasuk referensi dari Kementerian Kesehatan Republik Indonesia (Kemenkes RI) dan berbagai studi gizi klinis, menunjukkan bahwa akar permasalahan obesitas pekerja bersifat multifaktorial. Faktor-faktor tersebut meliputi pola makan yang tidak seimbang, perilaku sedenter yang berkepanjangan, stres kerja yang memicu emotional eating, serta lingkungan pangan (food environment) di sekitar kantor yang bersifat obesogenik—mendukung terjadinya obesitas melalui ketersediaan makanan tinggi kalori namun rendah nutrisi. ",
+        "bbox": [
+          114,
+          541,
+          867,
+          657
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Laporan ini menyajikan kerangka kerja strategis yang dielaborasi ke dalam 30 tips atau protokol gizi yang efektif, aplikatif, dan berbasis bukti (evidence-based). Pendekatan ini dirancang khusus untuk konteks sosiokultural Indonesia, mengakomodasi realitas kuliner lokal seperti budaya \"Warteg\", \"Nasi Padang\", dan kegemaran mengonsumsi gorengan, serta dinamika sosial di tempat kerja. Setiap protokol dianalisis secara mendalam mulai dari mekanisme fisiologis, implikasi psikologis, hingga strategi implementasi praktisnya. ",
+        "bbox": [
+          114,
+          660,
+          879,
+          761
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "2. Pilar I: Fondasi Fisiologis dan Paradigma Gizi Seimbang (Tips 1-5) ",
+        "text_level": 1,
+        "bbox": [
+          116,
+          776,
+          789,
+          830
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Sebelum melangkah pada taktik spesifik, intervensi gizi harus dibangun di atas pemahaman yang kuat mengenai kebutuhan fisiologis tubuh pekerja. Pekerja kantoran umumnya memiliki pengeluaran energi harian (Total Daily Energy Expenditure/TDEE) yang rendah karena ",
+        "bbox": [
+          116,
+          844,
+          857,
+          896
+        ],
+        "page_idx": 0
+      }
+    ],
+    "doc_id": "doc-3c6811ba02662e39a5cf1da759e04ddb",
+    "mtime": 1779023258.9499135,
+    "parse_config": {
+      "parser": "mineru",
+      "parse_method": "txt"
+    },
+    "cached_at": 1779023668.0404127,
+    "cache_version": "1.0",
+    "create_time": 1779023668,
+    "update_time": 1779023668,
+    "_id": "9a77d5d8e2928eb1fcbc4c42d493b27b"
+  },
+  "011ef4bb65f0ba979f6b16f4cac236bd": {
+    "content_list": [
+      {
+        "type": "text",
+        "text": "Pengantar Gizi Olahraga ",
+        "text_level": 1,
+        "bbox": [
+          152,
+          122,
+          423,
+          146
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Setiap atlet harus memerhatikan pemenuhan asupan gizinya terutama pada keseimbangan antara asupan dan pengeluaran energi, baik pada fase sebelum, saat, dan setelah latihan atau bertanding. Atlet yang mendapatkan asupan gizi sesuai dengan karakteristik individu dan cabang olahraga akan memiliki kecukupan gizi untuk berlatih dan meningkatkan performa. Performa yang baik dari atlet akan mendukung atlet memperoleh prestasi terbaiknya. ",
+        "bbox": [
+          150,
+          169,
+          847,
+          323
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "text",
+        "text": "Peningkatan performa dan prestasi tidak hanya berasal dari latihan yang dilakukan secara rutin, tetapi perlu didukung dengan asupan zat gizi yang seimbang dan teratur. Sayangnya, masih banyak atlet mengutamakan penggunaan suplemen dibandingkan faktor lainnya. Padahal, pemenuhan gizi atlet seharusnya mengacu pada Sport Nutrition Pyramid (piramida gizi olahraga). Fokus utama piramida ini adalah diet gizi seimbang, dilanjutkan dengan pendampingan gizi olahraga dan selanjutnya penggunaan suplemen apabila diperlukan. Piramida ini telah terbukti secara ilmiah dan digunakan oleh para ahli serta tenaga gizi olahraga. ",
+        "bbox": [
+          157,
+          344,
+          852,
+          543
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "image",
+        "img_path": "E:\\Nahel's Work\\Project Chatbot\\newchatbotapp\\ai_service\\output\\Booklet Buku Pintar Gizi Atlet Kemenkes RI 2021-3_1977ae3a\\Booklet Buku Pintar Gizi Atlet Kemenkes RI 2021-3\\hybrid_txt\\images\\66c36179479e3a3b82fd1170b0f6b19daed59308c924d1bce42e5ed8a01c038b.jpg",
+        "image_caption": [
+          "Piramida Gizi Atlet "
+        ],
+        "image_footnote": [],
+        "content": "Suplemen\nGizi Olahraga\nDiet Gizi Seimbang",
+        "sub_type": "text_image",
+        "bbox": [
+          169,
+          580,
+          480,
+          788
+        ],
+        "page_idx": 0,
+        "img_caption": [
+          "Piramida Gizi Atlet "
+        ],
+        "img_footnote": []
+      },
+      {
+        "type": "image",
+        "img_path": "E:\\Nahel's Work\\Project Chatbot\\newchatbotapp\\ai_service\\output\\Booklet Buku Pintar Gizi Atlet Kemenkes RI 2021-3_1977ae3a\\Booklet Buku Pintar Gizi Atlet Kemenkes RI 2021-3\\hybrid_txt\\images\\c8d8daa235df604197238d5ad51b3fc6d4ebaa0d74fe3d6cf935288f39430fdb.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "Illustration of a man standing with arms raised, surrounded by food items including a clock, basketball, and a milk cart (no text or symbols)",
+        "sub_type": "natural_image",
+        "bbox": [
+          492,
+          578,
+          886,
+          806
+        ],
+        "page_idx": 0,
+        "img_caption": [],
+        "img_footnote": []
+      },
+      {
+        "type": "footer",
+        "text": "PENDAMPINGAN GIZI PADA ATLET ",
+        "bbox": [
+          536,
+          892,
+          822,
+          908
+        ],
+        "page_idx": 0
+      },
+      {
+        "type": "page_number",
+        "text": "2 ",
+        "bbox": [
+          876,
+          890,
+          896,
+          908
+        ],
+        "page_idx": 0
+      }
+    ],
+    "doc_id": "doc-71e1fe549bbd062fdf9ed9b6c0342270",
+    "mtime": 1779024006.3455534,
+    "parse_config": {
+      "parser": "mineru",
+      "parse_method": "txt"
+    },
+    "cached_at": 1779024506.5047064,
+    "cache_version": "1.0",
+    "create_time": 1779024506,
+    "update_time": 1779024506,
+    "_id": "011ef4bb65f0ba979f6b16f4cac236bd"
+  }
+}

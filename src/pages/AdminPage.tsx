@@ -6,12 +6,14 @@ import { AdminKnowledgeBasePanel } from '../components/AdminKnowledgeBasePanel';
 import { Users, MessageSquare, Database, Shield, LogOut, Home } from 'lucide-react';
 import { Database as DB } from '../lib/database.types';
 import { useNavigate } from 'react-router-dom';
+import { AdminPdfUploadPanel } from '../components/AdminPdfUploadPanel';
+import { FileText } from 'lucide-react';
 
 type Athlete = DB['public']['Tables']['athletes']['Row'];
 
 export function AdminPage() {
   const { signOut, isAdmin } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'knowledge'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'chats' | 'knowledge' | 'pdf'>('users');
   const [selectedUser, setSelectedUser] = useState<Athlete | null>(null);
   const navigate = useNavigate();
 
@@ -124,6 +126,18 @@ export function AdminPage() {
           </div>
         </nav>
 
+        <button
+          onClick={() => setActiveTab('pdf')}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors ${
+            activeTab === 'pdf'
+              ? 'bg-emerald-100 text-emerald-700'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          <FileText className="w-5 h-5" />
+          <span>PDF Upload</span>
+        </button>
+
         <main className="flex-1 overflow-hidden">
           {activeTab === 'users' && <AdminUsersPanel onSelectUser={handleSelectUser} />}
           {activeTab === 'chats' && (
@@ -133,6 +147,7 @@ export function AdminPage() {
             />
           )}
           {activeTab === 'knowledge' && <AdminKnowledgeBasePanel />}
+          {activeTab === 'pdf' && <AdminPdfUploadPanel /> }
         </main>
       </div>
     </div>

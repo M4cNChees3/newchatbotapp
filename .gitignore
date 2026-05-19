@@ -39,3 +39,4 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+/ai_service/venv
